@@ -93,15 +93,25 @@ const Agent = ({ userName,userId,type,interviewId,questions }: AgentProps) => {
   const handleCall=async()=>{
     setCallStatus(CallStatus.CONNECTING);
     if(type==='generate'){
-      console.log("Workflow ID:", process.env.NEXT_PUBLIC_VAPI_WORKFLOW_ID);
-         vapi.start(null, null, null, process.env.NEXT_PUBLIC_VAPI_WORKFLOW_ID,
-         {
-        variableValues: {
-          username: userName,
-          userid: userId,
-        },
-    }    
-);
+      const workflowId = process.env.NEXT_PUBLIC_VAPI_WORKFLOW_ID;
+      if (!workflowId) {
+        console.error("NEXT_PUBLIC_VAPI_WORKFLOW_ID is not set");
+        setCallStatus(CallStatus.INACTIVE);
+        return;
+      }
+
+      await vapi.start(
+        undefined,
+        undefined,
+        undefined,
+        workflowId,
+        {
+          variableValues: {
+            username: userName,
+            userid: userId,
+          },
+        }
+      );
     }else{
       let formattedQuestion='';
       if(questions){
